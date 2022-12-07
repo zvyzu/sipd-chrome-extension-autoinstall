@@ -1,0 +1,1 @@
+# sipd-chrome-extension-autoinstall
