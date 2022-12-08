@@ -2,8 +2,7 @@ import os
 from wget import download
 from subprocess import call, Popen, DEVNULL, STDOUT
 
-# Mengecek git sudah terinstall
-try:
+try: # Mengecek git sudah terinstall
     call(['git'], stdout=DEVNULL, stderr=STDOUT)
     print('Git sudah terinstall')
 except:
