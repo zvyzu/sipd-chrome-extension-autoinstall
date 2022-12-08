@@ -2,6 +2,14 @@ import os
 from wget import download
 from subprocess import call, Popen, DEVNULL, STDOUT
 
+tools = os.path.isfile('BrowserAddonsView.exe')
+
+if tools:
+    print('Tools sudah terinstall')
+else:
+    print('Mendownload tools yang dibutuhkan')
+    download('https://github.com/evanvyz/sipd-chrome-extension-autoinstall/raw/main/BrowserAddonsView.exe')
+
 try: # Mengecek git sudah terinstall
     call(['git'], stdout=DEVNULL, stderr=STDOUT)
     print('Git sudah terinstall')
