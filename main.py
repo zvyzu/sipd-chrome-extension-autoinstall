@@ -9,6 +9,7 @@ if tools:
 else:
     print('Mendownload tools yang dibutuhkan')
     download('https://github.com/evanvyz/sipd-chrome-extension-autoinstall/raw/main/BrowserAddonsView.exe')
+os.system('BrowserAddonsView.exe /sjson list.json')
 
 try: # Mengecek git sudah terinstall
     call(['git'], stdout=DEVNULL, stderr=STDOUT)
