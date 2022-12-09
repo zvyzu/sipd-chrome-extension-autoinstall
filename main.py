@@ -1,57 +1,80 @@
-import os
+import urllib
+from urllib.request import urlopen
+from os import system, path
 from time import sleep
 from wget import download
-from subprocess import call, Popen, DEVNULL, STDOUT
+from subprocess import call, run, DEVNULL, STDOUT
 
 # Chrome location
-c64 = os.path.isfile('C:\Program Files\Google\Chrome\Application\chrome.exe')
-cx86 = os.path.isfile('C:\Program Files (x86)\Google\Chrome\Application\chrome.exe')
-win764 = os.path.isfile('C:\Program Files\Google\Application\chrome.exe')
-win7x86 = os.path.isfile('C:\Program Files (x86)\Google\Application\chrome.exe')
+c64 = path.isfile('C:\Program Files\Google\Chrome\Application\chrome.exe')
+cx86 = path.isfile('C:\Program Files (x86)\Google\Chrome\Application\chrome.exe')
+win764 = path.isfile('C:\Program Files\Google\Application\chrome.exe')
+win7x86 = path.isfile('C:\Program Files (x86)\Google\Application\chrome.exe')
 
-def cek(): # Pengecek git sudah terinstall
+def connected(): # Cek koneksi ke github
+    try:
+        urlopen('https://github.com/', timeout=5)
+        return True
+    except urllib.error.URLError:
+        return False
+
+def git(): # Pengecek git sudah terinstall
     try:
         call(['git'], stdout=DEVNULL, stderr=STDOUT)
         return False
-    except OSError:
+    except FileNotFoundError:
         return True
 
 def gitinstall(): # Menginstall git
     try:
-        Popen('winget install --id Git.Git -e --source winget')
-        while cek():
-            sleep(0.25)
-    except OSError as e:
-        print('Mendownload git')
+        run('winget install --id Git.Git -e --source winget')
+    except FileNotFoundError:
+        print('Mendownload git.')
         download('https://github.com/git-for-windows/git/releases/download/v2.38.1.windows.1/Git-2.38.1-32-bit.exe')
-        print('Sedang menginstall git')
-        os.system('Git-2.38.1-32-bit.exe /VERYSILENT')
+        print('\n')
+        print('Sedang menginstall git.')
+        system('Git-2.38.1-32-bit.exe /VERYSILENT')
 
-def gitclone(): # Melakukan git pull & git clone
-    if os.path.isfile('D:\sipd-chrome-extension'):
-        os.system('del /f D:\sipd-chrome-extension')
-    elif os.path.isfile('D:\sipd-chrome-extension\manifest.json'):
-        os.system('git -C D:\sipd-chrome-extension pull')
-    elif os.path.isfile('C:\sipd-chrome-extension\manifest.json'):
-        os.system('git -C C:\sipd-chrome-extension pull')
-    else:
-        print('Sedang clone extension')
-        os.system('git clone https://github.com/agusnurwanto/sipd-chrome-extension.git D:\sipd-chrome-extension')
-        print('Mendownload config.js')
+def gitclone(): # Handle errors git clone
+    try:
+        system('git clone https://github.com/agusnurwanto/sipd-chrome-extension.git D:\sipd-chrome-extension')
         download('https://raw.githubusercontent.com/evanvyz/sipd-chrome-extension-autoinstall/main/config.js', out = 'D:\sipd-chrome-extension')
+        print('\n')
+    except:
+        system('git clone https://github.com/agusnurwanto/sipd-chrome-extension.git C:\sipd-chrome-extension')
+        download('https://raw.githubusercontent.com/evanvyz/sipd-chrome-extension-autoinstall/main/config.js', out = 'C:\sipd-chrome-extension')
+        print('\n')
 
-if cek(): # Mengecek git sudah terinstall
-    gitinstall()
-else:
-    gitclone()
+def pullclone(): # Melakukan git clone & git pull
+    if path.isfile('D:\sipd-chrome-extension'):
+        system('del /f D:\sipd-chrome-extension')
+    elif path.isfile('D:\sipd-chrome-extension\manifest.json'):
+        system('git -C D:\sipd-chrome-extension pull')
+    elif path.isfile('C:\sipd-chrome-extension'):
+        system('del /f C:\sipd-chrome-extension')
+    elif path.isfile('C:\sipd-chrome-extension\manifest.json'):
+        system('git -C C:\sipd-chrome-extension pull')
+    else:
+        print('Sedang clone extension.')
+        gitclone()
 
-if cek():
-    gitinstall()
-else:
-    gitclone()
+def cekchrome(): # Mengecek Google Chrome terinstall
+    if c64 or cx86 or win764 or win7x86:
+        pass
+    else:
+        print('Silakan download & install Google Chrome.')
+        print('https://www.google.com/chrome/')
+        sleep(10)
 
-if c64 or cx86 or win764 or win7x86: # Mengecek Google Chrome terinstall
-    pass
+if connected():
+    if git(): # Mengecek git sudah terinstall
+        gitinstall()
+    if git():
+        print('Git belum terinstall, Silakan jalankan ulang aplikasi ini.')
+        sleep(10)
+    else:
+        pullclone()
+        sleep(5)
 else:
-    print('Silakan download & install Google Chrome.')
-    print('https://www.google.com/chrome/')
+    print('Tidak dapat terkoneksi ke internet, Harap cek koneksi internet anda.')
+    sleep(10)
