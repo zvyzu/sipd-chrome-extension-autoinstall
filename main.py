@@ -62,7 +62,7 @@ def cekchrome(): # Mengecek Google Chrome terinstall
     if c64 or cx86 or win764 or win7x86:
         pass
     else:
-        print('Silakan download & install Google Chrome.')
+        print('Google Chrome belum di install, Silakan download & install Google Chrome.')
         print('https://www.google.com/chrome/')
         sleep(5)
 
