@@ -1,4 +1,4 @@
-import urllib
+from urllib import error
 from urllib.request import urlopen
 from os import system, path
 from time import sleep
@@ -15,7 +15,7 @@ def connected(): # Cek koneksi ke github
     try:
         urlopen('https://github.com/', timeout=5)
         return True
-    except urllib.error.URLError:
+    except error.URLError:
         return False
 
 def git(): # Pengecek git sudah terinstall
@@ -64,17 +64,23 @@ def cekchrome(): # Mengecek Google Chrome terinstall
     else:
         print('Silakan download & install Google Chrome.')
         print('https://www.google.com/chrome/')
-        sleep(10)
+        sleep(5)
 
 if connected():
     if git(): # Mengecek git sudah terinstall
         gitinstall()
+    else:
+        print('Git sudah terinstall.')
     if git():
         print('Git belum terinstall, Silakan jalankan ulang aplikasi ini.')
-        sleep(10)
+        sleep(5)
     else:
         pullclone()
+        cekchrome()
         sleep(5)
 else:
     print('Tidak dapat terkoneksi ke internet, Harap cek koneksi internet anda.')
+    print('Jika hanya aplikasi ini saja yang tidak dapat terkoneksi ke internet, Coba lakukan berikut ini:')
+    print('1. Tambahkan dan izinkan aplikasi ini ke Firewall.')
+    print('2. Jika belum berhasil, Matikan anti virus seperti SMADAV dan Windows Defender jika perlu matikan juga Firewall.')
     sleep(10)
