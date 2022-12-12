@@ -72,7 +72,7 @@ if connected():
     else:
         print('Git sudah terinstall.')
     if git():
-        print('Git belum terinstall, Silakan jalankan ulang aplikasi ini.')
+        print('Silakan jalankan ulang aplikasi ini.')
         sleep(5)
     else:
         pullclone()
