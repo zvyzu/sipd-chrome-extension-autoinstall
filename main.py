@@ -45,13 +45,25 @@ def gitclone(): # Handle errors git clone
         download('https://raw.githubusercontent.com/evanvyz/sipd-chrome-extension-autoinstall/main/config.js', out = 'C:\sipd-chrome-extension')
         print('\n')
 
+def configjs():
+    if path.isfile('D:\sipd-chrome-extension\config.js'):
+        return False
+    else:
+        return True
+
 def pullclone(): # Melakukan git clone & git pull
     if path.isfile('D:\sipd-chrome-extension'):
         system('del /f D:\sipd-chrome-extension')
+    elif configjs():
+        download('https://raw.githubusercontent.com/evanvyz/sipd-chrome-extension-autoinstall/main/config.js', out = 'D:\sipd-chrome-extension')
+        system('git -C D:\sipd-chrome-extension pull')
     elif path.isfile('D:\sipd-chrome-extension\manifest.json'):
         system('git -C D:\sipd-chrome-extension pull')
     elif path.isfile('C:\sipd-chrome-extension'):
         system('del /f C:\sipd-chrome-extension')
+    elif configjs():
+        download('https://raw.githubusercontent.com/evanvyz/sipd-chrome-extension-autoinstall/main/config.js', out = 'C:\sipd-chrome-extension')
+        system('git -C C:\sipd-chrome-extension pull')
     elif path.isfile('C:\sipd-chrome-extension\manifest.json'):
         system('git -C C:\sipd-chrome-extension pull')
     else:
