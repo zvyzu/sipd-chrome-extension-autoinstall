@@ -13,7 +13,7 @@ def cek(): # Pengecek git sudah terinstall
     try:
         call(['git'], stdout=DEVNULL, stderr=STDOUT)
         return False
-    except OSError:
+    except:
         return True
 
 def gitinstall(): # Menginstall git
@@ -21,7 +21,7 @@ def gitinstall(): # Menginstall git
         Popen('winget install --id Git.Git -e --source winget')
         while cek():
             sleep(0.25)
-    except OSError as e:
+    except OSError:
         print('Mendownload git')
         download('https://github.com/git-for-windows/git/releases/download/v2.38.1.windows.1/Git-2.38.1-32-bit.exe')
         print('Sedang menginstall git')
