@@ -5,7 +5,7 @@ from time import sleep
 from wget import download
 from subprocess import call, run, DEVNULL, STDOUT
 
-# Chrome location
+# Googele Chrome location
 c64 = path.isfile('C:\Program Files\Google\Chrome\Application\chrome.exe')
 cx86 = path.isfile('C:\Program Files (x86)\Google\Chrome\Application\chrome.exe')
 win764 = path.isfile('C:\Program Files\Google\Application\chrome.exe')
