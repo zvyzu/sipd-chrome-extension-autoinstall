@@ -45,7 +45,7 @@ def gitclone(): # Handle errors git clone
         download('https://raw.githubusercontent.com/evanvyz/sipd-chrome-extension-autoinstall/main/config.js', out = 'C:\sipd-chrome-extension')
         print('\n')
 
-def configjs():
+def configjs(): # Mengecek config.js
     if path.isfile('D:\sipd-chrome-extension\config.js'):
         return False
     else:
