@@ -75,6 +75,14 @@ goto relaunch
 :gitinstalled
 cls
 
+:: Pengecekan .git
+if exist "D:\sipd-chrome-extension\" (
+if not exist "D:\sipd-chrome-extension\.git\" ( rmdir /S /Q D:\sipd-chrome-extension\ )
+)
+if exist "C:\sipd-chrome-extension\" (
+if not exist "C:\sipd-chrome-extension\.git\" ( rmdir /S /Q C:\sipd-chrome-extension\ )
+)
+
 :: Url / link config.js
 set urljs=https://raw.githubusercontent.com/evanvyz/sipd-chrome-extension-autoinstall/main/config.js
 set urlexample=https://raw.githubusercontent.com/agusnurwanto/sipd-chrome-extension/master/config.js.example
