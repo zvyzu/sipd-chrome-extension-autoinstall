@@ -51,8 +51,11 @@ if '%errorlevel%' NEQ '0' (
 ::----------------
 :: Mendownload Git
 ::----------------
+:: url / link download git ( Silakan ganti jika ada git versi terbaru )
 set urlgit=https://github.com/git-for-windows/git/releases/download/v2.39.0.windows.2/Git-2.39.0.2-32-bit.exe
 set filename=Git-2.39.0.2-32-bit.exe
+
+:: Download Git
 echo Mendownload git.....
 curl -A "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64)" -L "%urlgit%" -o %filename% --ssl-no-revoke
 if %errorlevel% NEQ 0 ( cls ) else ( goto gitinstall )
@@ -75,56 +78,39 @@ goto relaunch
 :gitinstalled
 cls
 
-:: Pengecekan .git
-if exist "D:\sipd-chrome-extension\" (
-if not exist "D:\sipd-chrome-extension\.git\" ( rmdir /S /Q D:\sipd-chrome-extension\ )
-)
-if exist "C:\sipd-chrome-extension\" (
-if not exist "C:\sipd-chrome-extension\.git\" ( rmdir /S /Q C:\sipd-chrome-extension\ )
-)
-
 :: Url / link config.js
 set urljs=https://raw.githubusercontent.com/evanvyz/sipd-chrome-extension-autoinstall/main/config.js
 set urlexample=https://raw.githubusercontent.com/agusnurwanto/sipd-chrome-extension/master/config.js.example
 
-:: Pengecekan Drive D:\
-if not exist "D:\" ( goto c )
+:: Pengecekan drive D:\
+if exist "D:\" ( goto d )
+set driveloc=C:
+goto drivelocation
+:d
+set driveloc=D:
+:drivelocation
 
-:: Melakunkan di Drive D:\
-if not exist "D:\sipd-chrome-extension\" ( goto gitclone )
-if exist "D:\sipd-chrome-extension\config.js.example" ( goto gitclone )
-powershell -Command "(New-Object Net.WebClient).DownloadFile('%urlexample%', 'D:\sipd-chrome-extension\config.js.example')"
+:: Pengecekan .git
+if exist "%driveloc%\sipd-chrome-extension\" (
+if not exist "%driveloc%\sipd-chrome-extension\.git\" ( rmdir /S /Q %driveloc%\sipd-chrome-extension\ )
+)
+
+:: Pengecekan
+if not exist "%driveloc%\sipd-chrome-extension\" ( goto gitclone )
+if exist "%driveloc%\sipd-chrome-extension\config.js.example" ( goto gitclone )
+powershell -Command "(New-Object Net.WebClient).DownloadFile('%urlexample%', '%driveloc%\sipd-chrome-extension\config.js.example')"
 
 :gitclone
-if exist "D:\sipd-chrome-extension\manifest.json" ( goto gitpull )
-git clone https://github.com/agusnurwanto/sipd-chrome-extension.git D:\sipd-chrome-extension
+if exist "%driveloc%\sipd-chrome-extension\manifest.json" ( goto gitpull )
+git clone https://github.com/agusnurwanto/sipd-chrome-extension.git %driveloc%\sipd-chrome-extension
 goto configjs
 
 :gitpull
-git -C D:\sipd-chrome-extension\ pull origin master
-if not exist "D:\sipd-chrome-extension\config.js" ( goto configjs ) else ( goto done )
+git -C %driveloc%\sipd-chrome-extension\ pull origin master
+if not exist "%driveloc%\sipd-chrome-extension\config.js" ( goto configjs ) else ( goto done )
 
 :configjs
-powershell -Command "(New-Object Net.WebClient).DownloadFile('%urljs%', 'D:\sipd-chrome-extension\config.js')"
-goto done
-
-:: Melakunkan di Drive C:\
-:c
-if not exist "C:\sipd-chrome-extension\" ( goto cgitclone )
-if exist "C:\sipd-chrome-extension\config.js.example" ( goto cgitclone )
-powershell -Command "(New-Object Net.WebClient).DownloadFile('%urlexample%', 'C:\sipd-chrome-extension\config.js.example')"
-
-:cgitclone
-if exist "C:\sipd-chrome-extension\manifest.json" ( goto cgitpull )
-git clone https://github.com/agusnurwanto/sipd-chrome-extension.git C:\sipd-chrome-extension
-goto cconfigjs
-
-:cgitpull
-git -C C:\sipd-chrome-extension\ pull origin master
-if not exist "C:\sipd-chrome-extension\config.js" ( goto cconfigjs ) else ( goto done )
-
-:cconfigjs
-powershell -Command "(New-Object Net.WebClient).DownloadFile('%urljs%', 'C:\sipd-chrome-extension\config.js')"
+powershell -Command "(New-Object Net.WebClient).DownloadFile('%urljs%', '%driveloc%\sipd-chrome-extension\config.js')"
 goto done
 
 ::-----------
