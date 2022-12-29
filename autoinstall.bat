@@ -19,8 +19,8 @@ if %errorlevel% NEQ 0 ( goto cls ) else ( goto gitinstalled )
 ::----------------
 :: Mendownload Git
 ::----------------
-:: url / link download git ( Silakan ganti jika ada git versi terbaru )
 :reinstallgit
+:: url / link download git ( Silakan ganti jika ada git versi terbaru )
 set urlgit=https://github.com/git-for-windows/git/releases/download/v2.39.0.windows.2/Git-2.39.0.2-32-bit.exe
 set filename=Git-2.39.0.2-32-bit.exe
 
