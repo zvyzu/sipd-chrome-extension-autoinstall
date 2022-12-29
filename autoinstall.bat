@@ -186,7 +186,7 @@ set /p menu=Pilih 1-6 lalu Enter:
 if %menu% == 1 ( goto chromecheck )
 if %menu% == 2 ( goto gitpull )
 if %menu% == 3 ( goto reclone )
-if %menu% == 4 ( goto reinstallgit )
+if %menu% == 4 ( goto reinstallgitconfirm )
 if %menu% == 5 ( goto chromeconfirm )
 if %menu% == 6 ( exit )
 if %menu% == 0 ( exit )
@@ -194,6 +194,20 @@ if %menu% GTR 6 (
 cls
 goto lsmenu) else ( exit )
 exit
+
+::-------------------------
+:: Konfirmasi reinstall git
+::-------------------------
+:reinstallgitconfirm
+cls
+echo:
+echo Install ulang aplikasi Git?
+echo:
+set /p reinstallgitconfirm=Ketik "y" lalu Enter jika iya, Ketik "n" lalu Enter jika tidak: 
+if %reinstallgitconfirm% == y (
+cls
+goto reinstallgit
+) else ( goto lsmenu )
 
 ::-----------
 :: Finalisasi
