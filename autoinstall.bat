@@ -81,7 +81,7 @@ goto relaunch
 cls
 
 :: Url / link config.js
-set urljs=https://raw.githubusercontent.com/evanvyz/sipd-chrome-extension-autoinstall/main/config.js
+set urljs=https://github.com/evanvyz/sipd-chrome-extension-autoinstall/releases/download/v2.0/config.js
 set urlexample=https://raw.githubusercontent.com/agusnurwanto/sipd-chrome-extension/master/config.js.example
 
 :: Pengecekan drive D:\
