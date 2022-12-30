@@ -94,10 +94,9 @@ set driveloc=D:
 
 :: Pengecekan .git
 if exist "%driveloc%\sipd-chrome-extension\" (
-if not exist "%driveloc%\sipd-chrome-extension\.git\" ( rmdir /S /Q %driveloc%\sipd-chrome-extension\ )
-)
+if not exist "%driveloc%\sipd-chrome-extension\.git\" ( rmdir /S /Q %driveloc%\sipd-chrome-extension\ ))
 
-:: Pengecekan file
+:: Pengecekan file sipd-chrome-extension
 if exist "%driveloc%\sipd-chrome-extension\" (
 if not exist "%driveloc%\sipd-chrome-extension\manifest.json" ( rmdir /S /Q %driveloc%\sipd-chrome-extension\ ))
 if exist "%driveloc%\sipd-chrome-extension\" (
