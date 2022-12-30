@@ -14,7 +14,7 @@ exit
 :: Mengecek git terinstall
 ::------------------------
 git -v
-if %errorlevel% NEQ 0 ( goto cls ) else ( goto gitinstalled )
+if %errorlevel% NEQ 0 ( cls ) else ( goto gitinstalled )
 
 ::----------------
 :: Mendownload Git
@@ -94,13 +94,15 @@ set driveloc=D:
 
 :: Pengecekan .git
 if exist "%driveloc%\sipd-chrome-extension\" (
-if not exist "%driveloc%\sipd-chrome-extension\.git\" ( rmdir /S /Q %driveloc%\sipd-chrome-extension\ ))
+    if not exist "%driveloc%\sipd-chrome-extension\.git\" (
+        rmdir /S /Q %driveloc%\sipd-chrome-extension\))
 
 :: Pengecekan file sipd-chrome-extension
 if exist "%driveloc%\sipd-chrome-extension\" (
-if not exist "%driveloc%\sipd-chrome-extension\manifest.json" ( rmdir /S /Q %driveloc%\sipd-chrome-extension\ ))
+    if not exist "%driveloc%\sipd-chrome-extension\manifest.json" (
+        rmdir /S /Q %driveloc%\sipd-chrome-extension\))
 if exist "%driveloc%\sipd-chrome-extension\" (
-if not exist "%driveloc%\sipd-chrome-extension\config.js.example" (
+    if not exist "%driveloc%\sipd-chrome-extension\config.js.example" (
 powershell -Command "(New-Object Net.WebClient).DownloadFile('%urlexample%', '%driveloc%\sipd-chrome-extension\config.js.example')"))
 
 :gitclone
@@ -160,8 +162,8 @@ echo Buka SIPD?
 echo:
 set /p openchrome=Ketik "y" lalu Enter jika iya, Ketik "n" lalu Enter jika tidak: 
 if %openchrome% == y (
-start chrome https://madiunkab.sipd.kemendagri.go.id/daerah
-exit
+    start chrome https://madiunkab.sipd.kemendagri.go.id/daerah
+    exit
 ) else ( goto lsmenu )
 
 :: -----------------
@@ -183,15 +185,20 @@ echo 6 Keluar.
 echo:
 set /p menu=Pilih 1-6 lalu Enter: 
 if %menu% == 1 ( goto chromecheck )
-if %menu% == 2 ( goto gitpull )
-if %menu% == 3 ( goto reclone )
+if %menu% == 2 (
+    echo:
+    goto gitpull )
+if %menu% == 3 (
+    echo:
+    goto reclone )
 if %menu% == 4 ( goto reinstallgitconfirm )
 if %menu% == 5 ( goto chromeconfirm )
 if %menu% == 6 ( exit )
 if %menu% == 0 ( exit )
 if %menu% GTR 6 (
-cls
-goto lsmenu) else ( exit )
+    cls
+    goto lsmenu
+) else ( goto lsmenu )
 exit
 
 ::-------------------------
@@ -204,8 +211,8 @@ echo Install ulang aplikasi Git?
 echo:
 set /p reinstallgitconfirm=Ketik "y" lalu Enter jika iya, Ketik "n" lalu Enter jika tidak: 
 if %reinstallgitconfirm% == y (
-cls
-goto reinstallgit
+    cls
+    goto reinstallgit
 ) else ( goto lsmenu )
 
 ::-----------
