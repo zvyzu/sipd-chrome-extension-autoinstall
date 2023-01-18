@@ -13,7 +13,7 @@ exit
 ::------------------------
 :: Mengecek git terinstall
 ::------------------------
-git -v
+git.exe -v
 if %errorlevel% NEQ 0 ( cls ) else ( goto gitinstalled )
 
 ::----------------
@@ -26,7 +26,7 @@ set filename=Git-2.39.0.2-32-bit.exe
 
 :: Download Git
 echo Mendownload git.....
-curl -A "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64)" -L "%urlgit%" -o %filename% --ssl-no-revoke
+curl.exe -A "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64)" -L "%urlgit%" -o %filename% --ssl-no-revoke
 if %errorlevel% NEQ 0 ( cls ) else ( goto reqadmin )
 echo Mendownload git.....
 powershell -Command "(New-Object Net.WebClient).DownloadFile('%urlgit%', '%filename%')"
@@ -180,10 +180,12 @@ echo 1 Buka SIPD.
 echo 2 Update ulang aplikasi sipd-chrome-extension.
 echo 3 Clone ulang aplikasi sipd-chrome-extension.
 echo 4 Install ulang aplikasi Git.
-echo 5 Download dan install Google Chrome
-echo 6 Keluar.
+echo 5 Download dan install Google Chrome.
+echo 6 Edit configjs.
+echo 7 Keluar.
+echo 0 Tutup.
 echo:
-set /p menu=Pilih 1-6 lalu Enter: 
+set /p menu=Pilih 1-7 lalu Enter: 
 if %menu% == 1 ( goto chromecheck )
 if %menu% == 2 (
     echo:
@@ -193,13 +195,118 @@ if %menu% == 3 (
     goto reclone )
 if %menu% == 4 ( goto reinstallgitconfirm )
 if %menu% == 5 ( goto chromeconfirm )
-if %menu% == 6 ( exit )
+if %menu% == 6 ( goto pilihth )
+if %menu% == 7 ( exit )
 if %menu% == 0 ( exit )
-if %menu% GTR 6 (
+if %menu% GTR 7 (
     cls
     goto lsmenu
 ) else ( goto lsmenu )
 exit
+
+::--------------
+:: Edit configjs
+::--------------
+:pilihth
+cls
+echo Pilih Tahun Anggaran
+echo 1 2021
+echo 2 2022
+echo 3 2023
+echo 4 2024
+echo 5 2025
+echo 6 Kembali ke menu.
+echo 0 Ketik manual.
+echo:
+
+set /p th=Pilih 0-6: 
+
+if %th% == 0 (
+    set /p tahun=Tahun Anggaran: 
+    goto id_daerah
+)
+if %th% == 1 (
+    set tahun=2021
+    goto id_daerah
+)
+if %th% == 2 (
+    set tahun=2022
+    goto id_daerah
+)
+if %th% == 3 (
+    set tahun=2023
+    goto id_daerah
+)
+if %th% == 4 (
+    set tahun=2024
+    goto id_daerah
+)
+if %th% == 5 (
+    set tahun=2025
+    goto id_daerah
+)
+if %th% == 6 ( goto lsmenu )
+if %th% GTR 6 (
+    cls
+    echo Maaf pilih 0 sampai 5.
+    echo:
+    goto pilihth
+) else (
+    cls
+    echo Maaf pilih 0 sampai 5.
+    echo:
+    goto pilihth
+)
+
+:id_daerah
+set /p idd=Ketik id daerah: 
+if %idd% GTR 999 (
+    cls
+    goto id_daerah
+)
+
+echo Alamat url sipd sesuai kabupaten kota masing-masing (Contoh: https://xxxxxxxxxx.sipd.kemendagri.go.id)
+set /p sipd_url=url sipd: 
+
+(
+echo var config = {
+echo 	tahun_anggaran : "%tahun%", // Tahun anggaran
+echo 	id_daerah : "%idd%", // ID daerah bisa didapat dengan ketikan kode drakor di console log SIPD Merah atau cek value dari pilihan pemda di halaman login SIPD Biru
+echo 	sipd_url : "%sipd_url%", // alamat sipd sesuai kabupaten kota masing-masing
+echo 	jml_rincian : 500, // maksimal jumlah rincian yang dikirim ke server lokal dalam satu request
+echo 	realisasi : false, // get realisasi rekening
+echo 	url_server_lokal : "https://xxxxxxxxxx.com/wp-admin/admin-ajax.php", // url server lokal
+echo 	api_key : "xxxxxxxxxxxxxxxxxxx", // api key server lokal disesuaikan dengan api dari WP plugin
+echo 	sipd_private : false, // koneksi ke plugin SIPD private
+echo 	tapd : [{
+echo 		nama: "nama tim tapd 1",
+echo 		nip: "12343464575656",
+echo 		jabatan: "Sekda",
+echo 	},{
+echo 		nama: "nama tim tapd 2",
+echo 		nip: "12343464575652",
+echo 		jabatan: "Kepala Bappeda",
+echo 	},{
+echo 		nama: "nama tim tapd 3",
+echo 		nip: "12343464575653",
+echo 		jabatan: "Kepala BPPKAD",
+echo 	}], // nama tim TAPD dalam bentuk array dan object maksimal 8 orang sesuai format SIPD
+echo 	tgl_rka : "false", // pilihan nilai default "auto"=auto generate, false=fitur dimatikan, "isi tanggal sendiri"=tanggal ini akan muncul sebagai nilai default dan bisa diedit
+echo 	nama_daerah : "Magetan", // akan tampil sebelum tgl_rka
+echo 	kepala_daerah : "Bapak / Ibu xxx xx.xx", // akan tampil di lampiran perda
+echo 	replace_logo : false, // jika nilai true maka akan mengganti logo di SIPD dengan logo di file img/logo.png
+echo 	no_perkada : 'xx/xx/xx/xx', // settingan no_perkada ini untuk edit nomor, tanggal dan keterangan perkada, setting false atau kosongkan value untuk menonaktifkan
+echo 	tampil_edit_hapus_rinci : true // Menampilkan tombol edit dan hapus di halaman Detail Rincian sub kegiatan
+echo };
+) > %driveloc%\sipd-chrome-extension\config.js
+cls
+echo Berhasil mengedit configjs
+echo Konfigurasi:
+echo tahun anggaran: %tahun%
+echo id daerah: %idd%
+echo url sipd: %sipd_url%
+timeout 5
+goto lsmenu
 
 ::-------------------------
 :: Konfirmasi reinstall git
