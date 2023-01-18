@@ -181,7 +181,7 @@ echo 2 Update ulang aplikasi sipd-chrome-extension.
 echo 3 Clone ulang aplikasi sipd-chrome-extension.
 echo 4 Install ulang aplikasi Git.
 echo 5 Download dan install Google Chrome.
-echo 6 Edit configjs.
+echo 6 Edit config.js.
 echo 7 Keluar.
 echo 0 Tutup.
 echo:
@@ -300,7 +300,7 @@ echo 	tampil_edit_hapus_rinci : true // Menampilkan tombol edit dan hapus di hal
 echo };
 ) > %driveloc%\sipd-chrome-extension\config.js
 cls
-echo Berhasil mengedit configjs
+echo Berhasil mengedit config.js
 echo Konfigurasi:
 echo tahun anggaran: %tahun%
 echo id daerah: %idd%
