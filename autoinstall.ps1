@@ -58,6 +58,10 @@ if (Test-Path "D:\" ) {
 }
 
 Function GitCloneSipd {
+    # Mengecek folder sudah ada
+    if (Test-Path "$drive\sipd-chrome-extension") {
+        Remove-Item -LiteralPath "$drive\sipd-chrome-extension" -Force -Recurse
+    }
     # Melakukan git clone
     try {
         Start-Process powershell.exe -Verb RunAs -ArgumentList "-command git clone https://github.com/agusnurwanto/sipd-chrome-extension.git $drive\sipd-chrome-extension | Out-Host" -WindowStyle Normal
@@ -68,10 +72,21 @@ Function GitCloneSipd {
     }
 }
 
+function GitPullSipd {
+    # Melakukan git pull
+    try {
+        Start-Process powershell.exe -Verb RunAs -ArgumentList "-command git -C $drive\sipd-chrome-extension\ pull origin master" -WindowStyle Normal
+        Start-Sleep -s 1
+        Wait-Process git -Timeout 60 -ErrorAction SilentlyContinue
+    } catch {
+        Write-Error $_.Exception
+    }
+}
+
 Function configjs {
     # URL config.js
     $url_configjs = "https://github.com/evanvyz/sipd-chrome-extension-autoinstall/releases/download/v2.0/config.js"
-
+    Write-Host "Mendownload config.js"
     # Mendownload config.js
     Invoke-WebRequest -Uri $url_configjs -OutFile "$drive\sipd-chrome-extension\config.js"
 }
@@ -104,14 +119,7 @@ if (Test-Path "$drive\sipd-chrome-extension") {
 
     # Mengecek config.js
     if (Test-Path "$drive\sipd-chrome-extension\config.js") {
-        # Melakukan git pull
-        try {
-            Start-Process powershell.exe -Verb RunAs -ArgumentList "-command git -C $drive\sipd-chrome-extension\ pull origin master" -WindowStyle Normal
-            Start-Sleep -s 1
-            Wait-Process git -Timeout 60 -ErrorAction SilentlyContinue
-        } catch {
-            Write-Error $_.Exception
-        }
+        GitPullSipd
     } else {configjs}
 } else {
     GitCloneSipd
@@ -126,9 +134,15 @@ Function OpenSipd {
     try {
         Start-Process chrome.exe --load-extension=D:\chrome-extension\sipd-chrome-extension
     } catch {
-        Write-Host "no"
+        Write-Warning "Google Chrome Belum terinstall."
     }
 }
+
+#============================================
+# 2. Menu Update ulang sipd-chrome-extension.
+#============================================
+
+
 
 #==============
 # Menu Aplikasi
@@ -157,8 +171,8 @@ do {
     $pilihan = Read-Host "Tekan 0-9 untuk memilih"
     switch ($pilihan) {
     '1' {OpenSipd}
-    '2' {''}
-    '3' {''}
+    '2' {GitPullSipd}
+    '3' {GitCloneSipd configjs}
     '4' {''}
     '5' {''}
     '6' {''}
@@ -166,5 +180,4 @@ do {
     '8' {''}
     '9' {''}
     }
-    pause
 } until ($pilihan -eq 0)
