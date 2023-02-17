@@ -13,16 +13,7 @@ If (-Not (Test-Connection www.google.com -Count 1 -Quiet)) {
 # Mengecek dan menginstall Git
 #=============================
 
-# Cek jika git sudah terinstall
-if (-Not (Get-Command -Name git -ErrorAction Ignore)) {
-    #Pengecekan Chocolatey sudah terinstall
-    if ((Get-Command -Name choco -ErrorAction Ignore) -and ($chocoVersion = (Get-Item "$env:ChocolateyInstall\choco.exe" -ErrorAction Ignore).VersionInfo.ProductVersion)) {
-        Write-Output "Chocolatey Versi $chocoVersion sudah terinstall"
-    } else {
-        Write-Output "Menginstall Chocolatey"
-        Set-ExecutionPolicy Bypass -Scope Process -Force; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-        powershell choco feature enable -n allowGlobalConfirmation
-    }
+Function Install-git {
     #Penginstallan Git menggunakan Chocolatey
     try {
         Start-Process powershell.exe -Verb RunAs -ArgumentList "-command choco install git.install --yes | Out-Host" -WindowStyle Normal
@@ -33,6 +24,19 @@ if (-Not (Get-Command -Name git -ErrorAction Ignore)) {
     } catch {
         Write-Error $_.Exception
     }
+}
+
+# Cek jika git sudah terinstall
+if (-Not (Get-Command -Name git -ErrorAction Ignore)) {
+    #Pengecekan Chocolatey sudah terinstall
+    if ((Get-Command -Name choco -ErrorAction Ignore) -and ($chocoVersion = (Get-Item "$env:ChocolateyInstall\choco.exe" -ErrorAction Ignore).VersionInfo.ProductVersion)) {
+        Write-Output "Chocolatey Versi $chocoVersion sudah terinstall"
+    } else {
+        Write-Output "Menginstall Chocolatey"
+        Set-ExecutionPolicy Bypass -Scope Process -Force; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+        powershell choco feature enable -n allowGlobalConfirmation
+    }
+    Install-git
 }
 
 #===============================
@@ -72,7 +76,7 @@ Function Start-Git_Clone_Sipd {
     }
 }
 
-function Start-Git_Pull_Sipd {
+Function Start-Git_Pull_Sipd {
     # Melakukan git pull
     try {
         Start-Process powershell.exe -Verb RunAs -ArgumentList "-command git -C $drive\sipd-chrome-extension\ pull origin master" -WindowStyle Normal
@@ -114,15 +118,70 @@ if (Test-Path "$drive\sipd-chrome-extension") {
     } else {Start-Git_Pull_Sipd}
 } else {Start-Git_Clone_Sipd}
 
-#==================
-# 1. Menu Buka SIPD
-#==================
+#==========================================
+# 1. Menu Buka SIPD / Install Google Chrome
+#==========================================
+
+Function Install-Chrome {
+    Write-Host ' '
+    Write-Host 'Ketik "y" lalu tekan Enter untuk menginstall.'
+    $confirm = Read-Host "Download dan install Google Chrome?"
+    if ($confirm -eq "y") {
+        try {
+            Start-Process powershell.exe -Verb RunAs -ArgumentList "-command choco install googlechrome --yes | Out-Host" -WindowStyle Normal
+            Start-Sleep -s 10
+            Wait-Process choco -Timeout 240 -ErrorAction SilentlyContinue
+        } catch [System.InvalidOperationException] {
+            Write-Warning "Klik Yes di User Access Control untuk Menginstall"
+        } catch {
+            Write-Error $_.Exception
+        }
+    }
+}
 
 Function Open-Sipd {
-    try {
-        Start-Process chrome.exe --load-extension="$drive\sipd-chrome-extension"
-    } catch {
-        Write-Warning "Google Chrome Belum terinstall."
+    Clear-Host
+    Write-Host ' '
+    Write-Host 'Ketik "y" dan tekan Enter untuk membuka SIPD.'
+    $confirm = Read-Host "Buka SIPD?"
+    if ($confirm -eq "y") {
+        try {
+            Start-Process chrome.exe --load-extension="$drive\sipd-chrome-extension"
+        } catch {
+            Write-Host ' '
+            Write-Warning "Google Chrome Belum terinstall."
+            Install-Chrome
+        }
+    }
+}
+
+#==============================================
+# 2. Menu git pull ulang sipd-chrome-extension.
+#==============================================
+
+Function Confirm-git_pull {
+    Clear-Host
+    Write-Host ' '
+    Write-Host 'Ketik "y" dan tekan Enter untuk git pull ulang sipd-chrome-extension.'
+    Write-Host ' '
+    $confirm = Read-Host "git pull ulang sipd-chrome-extension?"
+    if ($confirm -eq "y") {
+        Start-Git_Pull_Sipd
+    }
+}
+
+#===========================================
+# 3. Menu Clone ulang sipd-chrome-extension.
+#===========================================
+
+Function Confirm-git_clone {
+    Clear-Host
+    Write-Host ' '
+    Write-Host 'Ketik "y" dan tekan Enter untuk git clone ulang sipd-chrome-extension.'
+    Write-Host ' '
+    $confirm = Read-Host "git clone ulang sipd-chrome-extension?"
+    if ($confirm -eq "y") {
+        Start-Git_Clone_Sipd
     }
 }
 
@@ -130,7 +189,7 @@ Function Open-Sipd {
 # 4. Menu Edit config.js
 #=======================
 
-function Edit-configjs {
+Function Edit-configjs {
     # Menampilkan pilihan tahun anggaran
     Function Show-Tahun_Anggaran {
         Clear-Host
@@ -219,7 +278,54 @@ var config = {
         $pilih_th = '0'
     }
     }
-    } until ($pilih_th -eq '0') {Start-Menu}
+    } until ($pilih_th -eq '0')
+}
+
+#=============================
+# 5. Menu update aplikasi Git.
+#=============================
+
+Function Confirm-update_git {
+    Clear-Host
+    Write-Host ' '
+    Write-Host 'Ketik "y" dan tekan Enter untuk update aplikasi Git.'
+    Write-Host ' '
+    $confirm = Read-Host "Update aplikasi Git?"
+    if ($confirm -eq "y") {
+        try {
+            Start-Process powershell.exe -Verb RunAs -ArgumentList "-command choco upgrade git.install --yes | Out-Host" -WindowStyle Normal
+            Start-Sleep -s 10
+            Wait-Process choco -Timeout 240 -ErrorAction SilentlyContinue
+        } catch [System.InvalidOperationException] {
+            Write-Warning "Klik Yes di User Access Control untuk Menginstall"
+        } catch {
+            Write-Error $_.Exception
+        }
+    }
+}
+
+#====================================
+# 6. Menu Install ulang aplikasi Git.
+#====================================
+
+Function Confirm-reinstall_git {
+    Clear-Host
+    Write-Host ' '
+    Write-Host 'Ketik "y" dan tekan Enter untuk install ulang aplikasi Git.'
+    Write-Host ' '
+    $confirm = Read-Host "Install ulang aplikasi Git?"
+    if ($confirm -eq "y") {
+        try {
+            Start-Process powershell.exe -Verb RunAs -ArgumentList "-command choco uninstall git.install --yes | Out-Host" -WindowStyle Normal
+            Start-Sleep -s 10
+            Wait-Process choco -Timeout 240 -ErrorAction SilentlyContinue
+        } catch [System.InvalidOperationException] {
+            Write-Warning "Klik Yes di User Access Control untuk Menginstall"
+        } catch {
+            Write-Error $_.Exception
+        }
+        Install-git
+    }
 }
 
 #==============
@@ -244,7 +350,7 @@ Function Start-Menu {
         Write-Host "9 Tentang sipd-chrome-extension."
         Write-Host "0 Tutup aplikasi."
         Write-Host " "
-        Write-Host "Tekan lalu Enter untuk memilih"
+        Write-Host "Pilih lalu Enter untuk memilih."
     }
     
     do {
@@ -252,11 +358,11 @@ Function Start-Menu {
         $pilihan = Read-Host "Pilih"
         switch ($pilihan) {
         '1' {Open-Sipd}
-        '2' {Start-Git_Pull_Sipd}
-        '3' {Start-Git_Clone_Sipd}
+        '2' {Confirm-git_pull}
+        '3' {Confirm-git_clone}
         '4' {Edit-configjs}
-        '5' {''}
-        '6' {''}
+        '5' {Confirm-update_git}
+        '6' {Confirm-reinstall_git}
         '7' {''}
         '8' {''}
         '9' {''}
