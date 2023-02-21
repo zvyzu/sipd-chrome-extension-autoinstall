@@ -27,6 +27,7 @@ Function Install-choco {
 Function Install-git {
     #Penginstallan Git menggunakan Chocolatey
     try {
+        # Nama package official Git adalah "git.install" bukan "git"
         Start-Process powershell.exe -Verb RunAs -ArgumentList "-command choco install git.install --yes | Out-Host" -WindowStyle Normal
         Start-Sleep -s 10
         Wait-Process choco -Timeout 240 -ErrorAction SilentlyContinue
@@ -60,7 +61,7 @@ if (Test-Path "D:\" ) {
 Function Start-Download_configjs {
     # URL config.js
     $url_configjs = "https://github.com/evanvyz/sipd-chrome-extension-autoinstall/releases/download/v2.0/config.js"
-    # Mendownload config.js
+    # Mendownload config.js ( Penggunaan Invoke-WebRequest menggunakan -Uri bukan -Url )
     Invoke-WebRequest -Uri $url_configjs -OutFile "$drive\sipd-chrome-extension\config.js"
 }
 
@@ -133,9 +134,11 @@ if (Test-Path "$drive\sipd-chrome-extension") {
 Function Install-Chrome {
     Write-Host ' '
     Write-Host 'Ketik "y" lalu tekan Enter untuk menginstall Google Chrome.'
+    Write-Host ' '
     $confirm = Read-Host "Download dan install Google Chrome?"
     if ($confirm -eq "y") {
         try {
+            # Perlu di ingat choco install googlechrome akan menginstall tidak peduli chrome sudah terinstall
             Start-Process powershell.exe -Verb RunAs -ArgumentList "-command choco install googlechrome --yes | Out-Host" -WindowStyle Normal
             Start-Sleep -s 10
             Wait-Process choco -Timeout 240 -ErrorAction SilentlyContinue
@@ -155,6 +158,7 @@ Function Open-Sipd {
     $confirm = Read-Host "Buka SIPD?"
     if ($confirm -eq "y") {
         try {
+            # Membuka SIPD dengan chrome extension sipd-chrome-extension (Bersifat tidak permanen / hilang jika ditutup)
             Start-Process chrome.exe -ArgumentList "--load-extension=$drive\sipd-chrome-extension", "https://madiunkab.sipd.kemendagri.go.id/daerah"
         } catch {
             Write-Host ' '
@@ -212,6 +216,7 @@ Function Edit-configjs {
         Write-Host "0 Kembali ke menu utama."
         Write-Host " "
     }
+    
     # Menampilkan input id daerah dan url sipd lalu mereplace file config.js
     Function Show-id_url {
         Write-Host ' '
@@ -312,6 +317,7 @@ Function Confirm-update_git {
     $confirm = Read-Host "Update aplikasi Git?"
     if ($confirm -eq "y") {
         try {
+            # Nama package official Git adalah "git.install" bukan "git"
             Start-Process powershell.exe -Verb RunAs -ArgumentList "-command choco upgrade git.install --yes | Out-Host" -WindowStyle Normal
             Start-Sleep -s 10
             Wait-Process choco -Timeout 240 -ErrorAction SilentlyContinue
@@ -335,6 +341,7 @@ Function Confirm-reinstall_git {
     $confirm = Read-Host "Install ulang aplikasi Git?"
     if ($confirm -eq "y") {
         try {
+            # Nama package official Git adalah "git.install" bukan "git"
             Start-Process powershell.exe -Verb RunAs -ArgumentList "-command choco uninstall git.install --yes | Out-Host" -WindowStyle Normal
             Start-Sleep -s 10
             Wait-Process choco -Timeout 240 -ErrorAction SilentlyContinue
@@ -357,6 +364,7 @@ Function Confirm-chrome {
     write-Host 'Mengecek Google Chrome terinstall...'
     write-Host ' '
     try {
+        # Perlu di ingat choco install googlechrome akan menginstall tidak peduli chrome sudah terinstall
         Start-Process chrome.exe
         Wait-Process chrome -Timeout 1 -ErrorAction SilentlyContinue
         Get-Process chrome | Stop-Process -Force
