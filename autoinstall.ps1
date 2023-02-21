@@ -5,13 +5,24 @@
 # Cek Koneksi ke www.google.com
 If (-Not (Test-Connection www.google.com -Count 1 -Quiet)) {
     Write-Host "Tidak dapat terkoneksi ke internet, Cek koneksi internet anda."
-    Start-Sleep -Seconds 5
+    Start-Sleep -s 5
     exit
 }
 
 #=============================
 # Mengecek dan menginstall Git
 #=============================
+
+Function Install-choco {
+    #Pengecekan Chocolatey sudah terinstall
+    if ((Get-Command -Name choco -ErrorAction Ignore) -and ($chocoVersion = (Get-Item "$env:ChocolateyInstall\choco.exe" -ErrorAction Ignore).VersionInfo.ProductVersion)) {
+        Write-Output "Chocolatey Versi $chocoVersion sudah terinstall"
+    } else {
+        Write-Output "Menginstall Chocolatey"
+        Set-ExecutionPolicy Bypass -Scope Process -Force; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+        powershell choco feature enable -n allowGlobalConfirmation
+    }
+}
 
 Function Install-git {
     #Penginstallan Git menggunakan Chocolatey
@@ -28,14 +39,7 @@ Function Install-git {
 
 # Cek jika git sudah terinstall
 if (-Not (Get-Command -Name git -ErrorAction Ignore)) {
-    #Pengecekan Chocolatey sudah terinstall
-    if ((Get-Command -Name choco -ErrorAction Ignore) -and ($chocoVersion = (Get-Item "$env:ChocolateyInstall\choco.exe" -ErrorAction Ignore).VersionInfo.ProductVersion)) {
-        Write-Output "Chocolatey Versi $chocoVersion sudah terinstall"
-    } else {
-        Write-Output "Menginstall Chocolatey"
-        Set-ExecutionPolicy Bypass -Scope Process -Force; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-        powershell choco feature enable -n allowGlobalConfirmation
-    }
+    Install-choco
     Install-git
 }
 
@@ -68,7 +72,7 @@ Function Start-Git_Clone_Sipd {
     # Melakukan git clone
     try {
         Start-Process powershell.exe -Verb RunAs -ArgumentList "-command git clone https://github.com/agusnurwanto/sipd-chrome-extension.git $drive\sipd-chrome-extension | Out-Host" -WindowStyle Normal
-        Start-Sleep -Seconds 1
+        Start-Sleep -s 1
         Wait-Process git -Timeout 120 -ErrorAction SilentlyContinue
         Start-Download_configjs
     } catch {
@@ -115,8 +119,12 @@ if (Test-Path "$drive\sipd-chrome-extension") {
     if (-Not (Test-Path "$drive\sipd-chrome-extension\config.js")) {
         Start-Download_configjs
         Start-Git_Pull_Sipd
-    } else {Start-Git_Pull_Sipd}
-} else {Start-Git_Clone_Sipd}
+    } else {
+        Start-Git_Pull_Sipd
+    }
+} else {
+    Start-Git_Clone_Sipd
+}
 
 #==========================================
 # 1. Menu Buka SIPD / Install Google Chrome
@@ -124,7 +132,7 @@ if (Test-Path "$drive\sipd-chrome-extension") {
 
 Function Install-Chrome {
     Write-Host ' '
-    Write-Host 'Ketik "y" lalu tekan Enter untuk menginstall.'
+    Write-Host 'Ketik "y" lalu tekan Enter untuk menginstall Google Chrome.'
     $confirm = Read-Host "Download dan install Google Chrome?"
     if ($confirm -eq "y") {
         try {
@@ -143,13 +151,15 @@ Function Open-Sipd {
     Clear-Host
     Write-Host ' '
     Write-Host 'Ketik "y" dan tekan Enter untuk membuka SIPD.'
+    Write-Host ' '
     $confirm = Read-Host "Buka SIPD?"
     if ($confirm -eq "y") {
         try {
-            Start-Process chrome.exe --load-extension="$drive\sipd-chrome-extension"
+            Start-Process chrome.exe -ArgumentList "--load-extension=$drive\sipd-chrome-extension", "https://madiunkab.sipd.kemendagri.go.id/daerah"
         } catch {
             Write-Host ' '
             Write-Warning "Google Chrome Belum terinstall."
+            Write-Host ' '
             Install-Chrome
         }
     }
@@ -213,6 +223,15 @@ Function Edit-configjs {
         Write-Host 'Contoh: https://xxxxxxxx.sipd.kemendagri.go.id'
         Write-Host ' '
         $sipd_url = Read-Host "URL SIPD"
+        Clear-Host
+        Write-Host 'Perubahan config.js:'
+        Write-Host ' '
+        Write-Host "Tahun Anggaran: $tahun_anggaran"
+        Write-Host "ID Daerah: $id_daerah"
+        write-Host "URL SIPD: $sipd_url"
+        Write-Host ' '
+        Write-Host "Menyimpan perubahan ke $drive\sipd-chrome-extension\config.js"
+        Start-Sleep -s 5
         $configjs = @"
 var config = {
 	tahun_anggaran : "$tahun_anggaran", // Tahun anggaran
@@ -328,6 +347,71 @@ Function Confirm-reinstall_git {
     }
 }
 
+#============================================
+# 7. Menu Download dan install Google Chrome.
+#============================================
+
+Function Confirm-chrome {
+    Clear-Host
+    write-Host ' '
+    write-Host 'Mengecek Google Chrome terinstall...'
+    write-Host ' '
+    try {
+        Start-Process chrome.exe
+        Wait-Process chrome -Timeout 1 -ErrorAction SilentlyContinue
+        Get-Process chrome | Stop-Process -Force
+        Write-Host 'Google Chrome sudah terinstall.'
+        Start-Sleep -s 5
+    } catch {
+        Install-Chrome
+    }
+}
+
+#====================================
+# 8. Menu Update aplikasi Chocolatey.
+#====================================
+
+Function Confirm-update_chocolatey {
+    Clear-Host
+    Write-Host ' '
+    Write-Host 'Ketik "y" dan tekan Enter untuk update aplikasi Chocolatey.'
+    Write-Host ' '
+    $confirm = Read-Host "Update aplikasi Chocolatey?"
+    if ($confirm -eq "y") {
+        try {
+            Start-Process powershell.exe -Verb RunAs -ArgumentList "-command choco upgrade chocolatey --yes | Out-Host" -WindowStyle Normal
+            Start-Sleep -s 10
+            Wait-Process choco -Timeout 240 -ErrorAction SilentlyContinue
+        } catch [System.InvalidOperationException] {
+            Write-Warning "Klik Yes di User Access Control untuk Menginstall"
+        } catch {
+            Write-Error $_.Exception
+        }
+    }
+}
+
+#=======================================
+# 9. Menu Tentang sipd-chrome-extension.
+#=======================================
+
+Function Open-about_sipd_chrome_extension {
+    Clear-Host
+    Write-Host ' '
+    Write-Host 'Ketik "y" dan tekan Enter untuk tentang sipd-chrome-extension.'
+    Write-Host ' '
+    $confirm = Read-Host "Buka Tentang sipd-chrome-extension?"
+    if ($confirm -eq "y") {
+        try {
+            Start-Process chrome.exe -ArgumentList "--load-extension=$drive\sipd-chrome-extension", "https://github.com/agusnurwanto/sipd-chrome-extension#readme"
+        } catch {
+            Write-Host ' '
+            Write-Warning "Google Chrome Belum terinstall."
+            Write-Host ' '
+            Install-Chrome
+        }
+    }
+}
+
 #==============
 # Menu Aplikasi
 #==============
@@ -351,6 +435,7 @@ Function Start-Menu {
         Write-Host "0 Tutup aplikasi."
         Write-Host " "
         Write-Host "Pilih lalu Enter untuk memilih."
+        Write-Host " "
     }
     
     do {
@@ -363,9 +448,9 @@ Function Start-Menu {
         '4' {Edit-configjs}
         '5' {Confirm-update_git}
         '6' {Confirm-reinstall_git}
-        '7' {''}
-        '8' {''}
-        '9' {''}
+        '7' {Confirm-chrome}
+        '8' {Confirm-update_chocolatey}
+        '9' {Open-about_sipd_chrome_extension}
         }
     } until ($pilihan -eq 0)
 }
