@@ -4,7 +4,7 @@ var config = {
 	sipd_url : "https://madiunkab.sipd.kemendagri.go.id/", // alamat sipd sesuai kabupaten kota masing-masing
 	jml_rincian : 500, // maksimal jumlah rincian yang dikirim ke server lokal dalam satu request
 	realisasi : false, // get realisasi rekening
-	url_server_lokal : "https://xxxxxxxxxx/2023/wp-admin/admin-ajax.php", // url server lokal
+	url_server_lokal : "https://xxxxxxxxxx/wp-admin/admin-ajax.php", // url server lokal
 	api_key : "xxxxxxxxxxxxxxxxxxx", // api key server lokal disesuaikan dengan api dari WP plugin
 	sipd_private : false, // koneksi ke plugin SIPD private
 	tapd : [{
